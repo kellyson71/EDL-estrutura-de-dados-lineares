@@ -2,6 +2,14 @@ import sys
 
 from maze import Maze
 
+CARACTERES_VALIDOS = {"0", "1", "e", "m"}
+
+
+def _validarLinha(linha):
+    for caractere in linha:
+        if caractere not in CARACTERES_VALIDOS:
+            raise ValueError(f"Caractere invalido no labirinto: '{caractere}'")
+
 
 def lerLabirintosDoArquivo(caminho):
     labirintos = []
@@ -9,7 +17,7 @@ def lerLabirintosDoArquivo(caminho):
 
     with open(caminho, encoding="utf-8") as arquivo:
         for linhaBruta in arquivo:
-            linha = linhaBruta.rstrip("\n")
+            linha = linhaBruta.rstrip("\n").rstrip("\r")
 
             if linha.strip() == "":
                 if linhasAtual:
@@ -17,6 +25,7 @@ def lerLabirintosDoArquivo(caminho):
                     linhasAtual = []
                 continue
 
+            _validarLinha(linha)
             linhasAtual.append(linha)
 
     if linhasAtual:
@@ -34,13 +43,18 @@ def lerLabirintoDoTeclado():
         if linha == "":
             break
 
+        _validarLinha(linha)
         linhas.append(linha)
 
     return linhas
 
 
-def resolver(linhas):
+def resolver(linhas, animado=False):
     labirinto = Maze(linhas)
+
+    if animado:
+        labirinto.exitMazeAnimado()
+        return
 
     print("Labirinto inicial:")
     print(labirinto)
@@ -57,11 +71,15 @@ def resolver(linhas):
 def main():
     argv = sys.argv[1:]
 
+    animado = "--animado" in argv
+    if animado:
+        argv.remove("--animado")
+
     if argv:
         for linhas in lerLabirintosDoArquivo(argv[0]):
-            resolver(linhas)
+            resolver(linhas, animado)
     else:
-        resolver(lerLabirintoDoTeclado())
+        resolver(lerLabirintoDoTeclado(), animado)
 
 
 if __name__ == "__main__":

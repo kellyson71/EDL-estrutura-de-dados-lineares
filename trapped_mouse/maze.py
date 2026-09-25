@@ -1,3 +1,6 @@
+import os
+import time
+
 from cell import Cell
 from pilha import Pilha
 
@@ -79,6 +82,41 @@ class Maze:
             self.currentCell = self.mazeStack.pop()
 
         print("Saida encontrada!")
+
+    def exitMazeAnimado(self, atraso=0.2):
+        # ponto extra: mesma logica do exitMaze, exibindo a posicao do rato
+        # quadro a quadro no terminal.
+        self.mazeStack = Pilha()
+        self.currentCell = self.entryCell
+
+        self.__desenharFrame()
+        time.sleep(atraso)
+
+        while self.currentCell != self.exitCell:
+            self.__marcarVisitado(self.currentCell)
+
+            for vizinho in self.__vizinhosNaoVisitados(self.currentCell):
+                self.mazeStack.push(vizinho)
+
+            if self.mazeStack.vazia():
+                print("Caminho nao encontrado")
+                return
+
+            self.currentCell = self.mazeStack.pop()
+            self.__desenharFrame()
+            time.sleep(atraso)
+
+        print("Saida encontrada!")
+
+    def __desenharFrame(self):
+        os.system("cls" if os.name == "nt" else "clear")
+
+        x, y = self.currentCell.getX(), self.currentCell.getY()
+        linha = self.maze[x]
+        frame = list(self.maze)
+        frame[x] = linha[:y] + "m" + linha[y + 1 :]
+
+        print("\n".join(frame))
 
     def __str__(self):
         return "\n".join(self.maze)
