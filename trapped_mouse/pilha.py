@@ -1,37 +1,23 @@
-class No:
-    def __init__(self, valor):
-        self.valor = valor
-        self.proximo = None
-
-
 class Pilha:
+    """
+    Pilha bem simples, guardando os itens numa lista comum do Python.
+    O final da lista e o topo da pilha.
+    """
+
     def __init__(self):
-        self.topo_no = None
-        self.tamanho = 0
+        self.itens = []
 
     def vazia(self):
-        return self.topo_no is None
+        if len(self.itens) == 0:
+            return True
+        else:
+            return False
 
-    def push(self, valor):
-        novo = No(valor)
-        novo.proximo = self.topo_no
-        self.topo_no = novo
-        self.tamanho += 1
+    def push(self, item):
+        self.itens.append(item)
 
     def pop(self):
-        if self.vazia():
-            raise IndexError("pop em pilha vazia")
-
-        no = self.topo_no
-        self.topo_no = no.proximo
-        self.tamanho -= 1
-        return no.valor
-
-    def topo(self):
-        if self.vazia():
-            raise IndexError("topo em pilha vazia")
-
-        return self.topo_no.valor
-
-    def __len__(self):
-        return self.tamanho
+        ultima_posicao = len(self.itens) - 1
+        item_do_topo = self.itens[ultima_posicao]
+        self.itens.pop(ultima_posicao)
+        return item_do_topo

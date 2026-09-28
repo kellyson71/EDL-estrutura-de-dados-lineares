@@ -2,7 +2,7 @@ import sys
 
 from maze import Maze
 
-CORES_CSS = """
+ESTILO_CSS = """
   body { font-family: sans-serif; background:#1e1e1e; color:#eee; text-align:center; padding:20px; }
   .labirinto { display:inline-block; border:4px solid #333; }
   .linha { display:flex; }
@@ -18,74 +18,113 @@ CORES_CSS = """
 """
 
 
-def _classeDaCelula(labirinto, x, y, caractere):
-    entrada = (labirinto.entryCell.getX(), labirinto.entryCell.getY())
-
-    if (x, y) == entrada:
+def descobrirClasseCss(labirinto, numero_da_linha, numero_da_coluna, caractere):
+    if numero_da_linha == labirinto.entryCell.x and numero_da_coluna == labirinto.entryCell.y:
         return "entrada"
+
     if caractere == labirinto.wall:
         return "parede"
+
     if caractere == labirinto.exitMarker:
         return "saida"
+
     if caractere == labirinto.visited:
         return "visitado"
+
     return "passagem"
 
 
-def gerarHtml(labirinto, caminhoSaida="visualizacao.html"):
-    linhasHtml = []
-    for x, linha in enumerate(labirinto.maze):
-        celulas = "".join(
-            f'<div class="celula {_classeDaCelula(labirinto, x, y, c)}"></div>'
-            for y, c in enumerate(linha)
-        )
-        linhasHtml.append(f'<div class="linha">{celulas}</div>')
+def montarHtmlDoLabirinto(labirinto):
+    html_das_linhas = ""
 
-    gridHtml = "\n".join(linhasHtml)
+    numero_da_linha = 0
+    while numero_da_linha < len(labirinto.maze):
+        linha = labirinto.maze[numero_da_linha]
+
+        html_da_linha = "<div class=\"linha\">"
+
+        numero_da_coluna = 0
+        while numero_da_coluna < len(linha):
+            caractere = linha[numero_da_coluna]
+            classe_css = descobrirClasseCss(labirinto, numero_da_linha, numero_da_coluna, caractere)
+            html_da_linha = html_da_linha + "<div class=\"celula " + classe_css + "\"></div>"
+            numero_da_coluna = numero_da_coluna + 1
+
+        html_da_linha = html_da_linha + "</div>"
+
+        html_das_linhas = html_das_linhas + html_da_linha + "\n"
+        numero_da_linha = numero_da_linha + 1
+
+    return html_das_linhas
+
+
+def gerarArquivoHtml(labirinto, caminho_do_arquivo_de_saida):
     altura = len(labirinto.maze)
-    largura = len(labirinto.maze[0]) if altura else 0
+    largura = len(labirinto.maze[0])
 
-    html = f"""<!doctype html>
-<html lang="pt-br">
-<head>
-<meta charset="utf-8">
-<title>Trapped Mouse - Visualizacao</title>
-<style>{CORES_CSS}</style>
-</head>
-<body>
-  <h1>Trapped Mouse &mdash; Labirinto {largura}x{altura}</h1>
-  <div class="labirinto">
-{gridHtml}
-  </div>
-  <div class="legenda">
-    <div class="item"><span class="caixa parede"></span> parede (1)</div>
-    <div class="item"><span class="caixa passagem"></span> corredor nao visitado (0)</div>
-    <div class="item"><span class="caixa visitado"></span> caminho percorrido (.)</div>
-    <div class="item"><span class="caixa entrada"></span> entrada do rato (m)</div>
-    <div class="item"><span class="caixa saida"></span> saida (e)</div>
-  </div>
-</body>
-</html>
-"""
+    grade_html = montarHtmlDoLabirinto(labirinto)
 
-    with open(caminhoSaida, "w", encoding="utf-8") as arquivo:
-        arquivo.write(html)
+    conteudo_html = (
+        "<!doctype html>\n"
+        "<html lang=\"pt-br\">\n"
+        "<head>\n"
+        "<meta charset=\"utf-8\">\n"
+        "<title>Trapped Mouse - Visualizacao</title>\n"
+        "<style>" + ESTILO_CSS + "</style>\n"
+        "</head>\n"
+        "<body>\n"
+        "  <h1>Trapped Mouse - Labirinto " + str(largura) + "x" + str(altura) + "</h1>\n"
+        "  <div class=\"labirinto\">\n"
+        + grade_html +
+        "  </div>\n"
+        "  <div class=\"legenda\">\n"
+        "    <div class=\"item\"><span class=\"caixa parede\"></span> parede (1)</div>\n"
+        "    <div class=\"item\"><span class=\"caixa passagem\"></span> corredor nao visitado (0)</div>\n"
+        "    <div class=\"item\"><span class=\"caixa visitado\"></span> caminho percorrido (.)</div>\n"
+        "    <div class=\"item\"><span class=\"caixa entrada\"></span> entrada do rato (m)</div>\n"
+        "    <div class=\"item\"><span class=\"caixa saida\"></span> saida (e)</div>\n"
+        "  </div>\n"
+        "</body>\n"
+        "</html>\n"
+    )
 
-    return caminhoSaida
+    arquivo_de_saida = open(caminho_do_arquivo_de_saida, "w", encoding="utf-8")
+    arquivo_de_saida.write(conteudo_html)
+    arquivo_de_saida.close()
+
+
+def lerLinhasDoArquivo(caminho_do_arquivo):
+    arquivo = open(caminho_do_arquivo, encoding="utf-8")
+
+    linhas = []
+    for linha_bruta in arquivo:
+        linha = linha_bruta.rstrip("\n")
+        linha = linha.rstrip("\r")
+        if linha.strip() != "":
+            linhas.append(linha)
+
+    arquivo.close()
+    return linhas
 
 
 def main():
-    caminhoEntrada = sys.argv[1] if len(sys.argv) > 1 else "entrada3.txt"
-    caminhoSaida = sys.argv[2] if len(sys.argv) > 2 else "visualizacao.html"
+    if len(sys.argv) > 1:
+        caminho_do_arquivo_de_entrada = sys.argv[1]
+    else:
+        caminho_do_arquivo_de_entrada = "entrada3.txt"
 
-    with open(caminhoEntrada, encoding="utf-8") as arquivo:
-        linhas = [linha.rstrip("\n").rstrip("\r") for linha in arquivo if linha.strip() != ""]
+    if len(sys.argv) > 2:
+        caminho_do_arquivo_de_saida = sys.argv[2]
+    else:
+        caminho_do_arquivo_de_saida = "visualizacao.html"
+
+    linhas = lerLinhasDoArquivo(caminho_do_arquivo_de_entrada)
 
     labirinto = Maze(linhas)
     labirinto.exitMaze()
 
-    caminhoGerado = gerarHtml(labirinto, caminhoSaida)
-    print(f"Visualizacao gerada em {caminhoGerado}")
+    gerarArquivoHtml(labirinto, caminho_do_arquivo_de_saida)
+    print("Visualizacao gerada em " + caminho_do_arquivo_de_saida)
 
 
 if __name__ == "__main__":
