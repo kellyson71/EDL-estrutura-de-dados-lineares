@@ -1,4 +1,4 @@
-import sys
+import os
 
 from maze import Maze
 
@@ -12,87 +12,74 @@ def linhaEhValida(linha):
     return True
 
 
-def lerLabirintosDoArquivo(caminho_do_arquivo):
-    arquivo = open(caminho_do_arquivo, encoding="utf-8")
+def lerLabirintosDoArquivo(caminho):
+    with open(caminho, encoding="utf-8") as arquivo:
+        linhas = [linha.strip() for linha in arquivo]
 
-    todos_os_labirintos = []
-    linhas_do_labirinto_atual = []
+    labirintos = []
+    labirintoAtual = []
 
-    for linha_bruta in arquivo:
-        linha = linha_bruta.rstrip("\n")
-        linha = linha.rstrip("\r")
+    for linha in linhas:
+        if linha == "":
+            if labirintoAtual:
+                labirintos.append(labirintoAtual)
+                labirintoAtual = []
+        else:
+            if not linhaEhValida(linha):
+                raise ValueError("Caractere inválido na linha: " + linha)
+            labirintoAtual.append(linha)
 
-        if linha.strip() == "":
-            if len(linhas_do_labirinto_atual) > 0:
-                todos_os_labirintos.append(linhas_do_labirinto_atual)
-                linhas_do_labirinto_atual = []
-            continue
+    if labirintoAtual:
+        labirintos.append(labirintoAtual)
 
-        if linhaEhValida(linha) == False:
-            raise ValueError("Caractere invalido na linha: " + linha)
-
-        linhas_do_labirinto_atual.append(linha)
-
-    arquivo.close()
-
-    if len(linhas_do_labirinto_atual) > 0:
-        todos_os_labirintos.append(linhas_do_labirinto_atual)
-
-    return todos_os_labirintos
+    return labirintos
 
 
 def lerLabirintoDoTeclado():
     print("Digite as linhas do labirinto (linha vazia pra terminar):")
+    linhas = []
 
-    linhas_digitadas = []
     while True:
-        linha = input()
+        linha = input().strip()
+
         if linha == "":
             break
 
-        if linhaEhValida(linha) == False:
-            print("Caractere invalido, so pode usar: 0, 1, e, m")
+        if not linhaEhValida(linha):
+            print("Caractere inválido, só pode usar: 0, 1, e, m")
             continue
 
-        linhas_digitadas.append(linha)
+        linhas.append(linha)
 
-    return linhas_digitadas
-
-
-def resolverLabirinto(linhas, animado):
-    labirinto = Maze(linhas)
-
-    if animado == True:
-        labirinto.exitMazeAnimado()
-        return
-
-    print("Labirinto inicial:")
-    print(labirinto)
-
-    labirinto.exitMaze()
-    print()
-
-    print("Labirinto final:")
-    print(labirinto)
+    return linhas
 
 
 def main():
-    argumentos = sys.argv[1:]
+    print("Escolha uma opção:")
+    print("1 - Ler labirinto de arquivo")
+    print("2 - Digitar labirinto no teclado")
+    opcao = input("Opção: ").strip()
 
-    animado = False
-    if "--animado" in argumentos:
-        animado = True
-        argumentos.remove("--animado")
+    if opcao == "1":
+        caminho = input("Digite o nome ou caminho do arquivo: ").strip()
 
-    if len(argumentos) > 0:
-        caminho_do_arquivo = argumentos[0]
-        labirintos_do_arquivo = lerLabirintosDoArquivo(caminho_do_arquivo)
+        if not os.path.exists(caminho):
+            pasta = os.path.dirname(os.path.abspath(__file__))
+            caminho = os.path.join(pasta, caminho)
 
-        for linhas_de_um_labirinto in labirintos_do_arquivo:
-            resolverLabirinto(linhas_de_um_labirinto, animado)
+        for labirinto in lerLabirintosDoArquivo(caminho):
+            maze = Maze(labirinto)
+            maze.exitMazeAnimado()
+
+    elif opcao == "2":
+        linhas = lerLabirintoDoTeclado()
+        if linhas:
+            maze = Maze(linhas)
+            maze.exitMazeAnimado()
+        else:
+            print("Nenhuma linha digitada.")
     else:
-        linhas_digitadas = lerLabirintoDoTeclado()
-        resolverLabirinto(linhas_digitadas, animado)
+        print("Opção inválida!")
 
 
 if __name__ == "__main__":
