@@ -50,8 +50,7 @@ def descompactar(compactado, tamanho):
 
 
 def mostrar_binario(compactado, tamanho):
-    binario = bin(compactado)
-    binario = binario[2:]
+    binario = bin(compactado)[2:]
     quantidadeBits = tamanho * 2
 
     while len(binario) < quantidadeBits:
@@ -70,24 +69,39 @@ def ler_dna(caminho):
 def salvar_compactado(caminho, compactado, tamanho):
     bits = mostrar_binario(compactado, tamanho)
 
-    with open(caminho, "w") as arquivo:
-        arquivo.write(str(tamanho) + "\n")
-        arquivo.write(bits)
+    while len(bits) % 8 != 0:
+        bits = "0" + bits
+
+    dados = int(bits, 2).to_bytes(
+        len(bits) // 8,
+        byteorder="big"
+    )
+
+    with open(caminho, "wb") as arquivo:
+        arquivo.write(tamanho.to_bytes(4, byteorder="big"))
+        arquivo.write(dados)
 
 
 def abrir_compactado(caminho):
-    with open(caminho, "r") as arquivo:
-        tamanho = int(arquivo.readline())
-        bits = arquivo.readline()
+    with open(caminho, "rb") as arquivo:
+        tamanho = int.from_bytes(
+            arquivo.read(4),
+            byteorder="big"
+        )
 
-    compactado = int(bits, 2)
+        dados = arquivo.read()
+
+    compactado = int.from_bytes(
+        dados,
+        byteorder="big"
+    )
 
     return compactado, tamanho
 
 
 pasta = os.path.dirname(os.path.abspath(__file__))
 arquivoEntrada = os.path.join(pasta, "dna.txt")
-arquivoCompactado = os.path.join(pasta, "dna_compactado.txt")
+arquivoCompactado = os.path.join(pasta, "dna_compactado.bin")
 
 print("COMPACTAÇÃO DE DNA")
 
@@ -105,13 +119,16 @@ if tamanho == 0:
 
 compactado = compactar(dna)
 
-if compactado == None:
+if compactado is None:
     print("Não foi possível compactar.")
-
 else:
-    salvar_compactado(arquivoCompactado, compactado, tamanho)
-    print()
+    salvar_compactado(
+        arquivoCompactado,
+        compactado,
+        tamanho
+    )
 
+    print()
     print("DNA original:")
     print(dna)
 
@@ -124,7 +141,10 @@ else:
 
     print()
 
-    binarioCompactado = mostrar_binario(compactado, tamanho)
+    binarioCompactado = mostrar_binario(
+        compactado,
+        tamanho
+    )
 
     print("DNA compactado em bits:")
     print(binarioCompactado)
@@ -149,8 +169,14 @@ else:
 
     print()
 
-    compactadoLido, tamanhoLido = abrir_compactado(arquivoCompactado)
-    dnaDescompactado = descompactar(compactadoLido, tamanhoLido)
+    compactadoLido, tamanhoLido = abrir_compactado(
+        arquivoCompactado
+    )
+
+    dnaDescompactado = descompactar(
+        compactadoLido,
+        tamanhoLido
+    )
 
     print("DNA descompactado:")
     print(dnaDescompactado)
