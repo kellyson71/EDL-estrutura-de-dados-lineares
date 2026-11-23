@@ -34,13 +34,13 @@ class Roda:
     def eliminar(self):
         if self.anterior is None:
             return None
-        da_vez = self.anterior.proximo
-        if da_vez is self.anterior:
+        atual = self.anterior.proximo
+        if atual is self.anterior:
             self.anterior = None
         else:
-            self.anterior.proximo = da_vez.proximo
+            self.anterior.proximo = atual.proximo
         self.tamanho -= 1
-        return da_vez.jogador
+        return atual.jogador
 
     def simular(self, k):
         if self.tamanho == 0:
