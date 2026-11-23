@@ -16,8 +16,6 @@ def tem_ciclo(inicio):
 
 
 def remover_k_do_fim(inicio, k):
-    if k < 1:
-        return inicio
     rapido = inicio
     for _ in range(k):
         if rapido is None:
