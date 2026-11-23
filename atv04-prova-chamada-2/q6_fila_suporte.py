@@ -60,15 +60,3 @@ class FilaSuporte:
     def esperando(self):
         return self.tamanho
 
-
-if __name__ == "__main__":
-    f = FilaSuporte()
-    print(f.atender(), f.desistencia(), f.esperando())
-    f.chegada_comum("Rita")
-    f.chegada_comum("Sol")
-    f.chegada_vip("Vera")
-    print(f.esperando())
-    print(f.atender(), f.desistencia(), f.esperando())
-    print(f.desistencia(), f.atender(), f.esperando())
-    f.chegada_vip("Zé")
-    print(f.desistencia(), f.esperando())

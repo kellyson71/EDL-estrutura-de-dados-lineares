@@ -28,11 +28,3 @@ class FilaCircular:
         self.tamanho -= 1
         return leitura
 
-
-if __name__ == "__main__":
-    f = FilaCircular(3)
-    print(f.retirar())
-    print(f.guardar(10), f.guardar(20), f.guardar(30), f.guardar(40))
-    print(f.retirar(), f.retirar())
-    print(f.guardar(50), f.guardar(60), f.guardar(70))
-    print(f.retirar(), f.retirar(), f.retirar(), f.retirar())

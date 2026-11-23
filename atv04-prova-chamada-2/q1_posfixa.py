@@ -11,9 +11,6 @@ class Pilha:
     def tamanho(self):
         return len(self.itens)
 
-    def vazia(self):
-        return not self.itens
-
 
 def avaliar(simbolos):
     pilha = Pilha()
@@ -39,17 +36,3 @@ def avaliar(simbolos):
         return "Erro: expressão sem resultado único."
     return pilha.desempilhar()
 
-
-if __name__ == "__main__":
-    testes = [
-        ["3", "4", "+", "2", "*"],
-        ["10", "2", "-"],
-        ["8", "2", "/"],
-        ["5", "+"],
-        ["4", "0", "/"],
-        [],
-        ["1", "2"],
-        ["7"],
-    ]
-    for t in testes:
-        print(t, "->", avaliar(t))

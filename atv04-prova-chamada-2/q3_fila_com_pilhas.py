@@ -34,12 +34,3 @@ class FilaDePedidos:
     def aguardando(self):
         return self.quantidade
 
-
-if __name__ == "__main__":
-    f = FilaDePedidos()
-    print(f.proximo())
-    f.registrar("pedido 1")
-    f.registrar("pedido 2")
-    print(f.proximo(), f.aguardando())
-    f.registrar("pedido 3")
-    print(f.proximo(), f.proximo(), f.proximo(), f.aguardando())

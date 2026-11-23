@@ -50,20 +50,3 @@ class Roda:
             self.eliminar()
         return self.da_vez()
 
-
-if __name__ == "__main__":
-    r = Roda()
-    print(r.da_vez(), r.eliminar(), r.simular(3))
-    for j in ["Ana", "Bia", "Caio", "Davi", "Eva"]:
-        r.entrar(j)
-    print(r.da_vez())
-    r.avancar(1000000007)
-    print(r.da_vez())
-    print(r.eliminar(), r.da_vez())
-    r2 = Roda()
-    for j in range(1, 8):
-        r2.entrar(j)
-    print(r2.simular(3))
-    r3 = Roda()
-    r3.entrar("Unico")
-    print(r3.simular(5), r3.eliminar(), r3.da_vez())
